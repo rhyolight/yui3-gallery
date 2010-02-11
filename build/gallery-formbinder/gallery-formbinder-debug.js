@@ -1,3 +1,5 @@
+YUI.add('gallery-formbinder', function(Y) {
+
 YUI().add('FormBind', function(Y) {
     var FORMBIND_NAME = 'FormBind',
         FORMBIND_NAMESPACE = 'forms',
@@ -128,3 +130,6 @@ YUI().add('FormBind', function(Y) {
     
     return Y[FORMBIND_NAMESPACE][FORMBIND_NAME];
 }, '0.1', { requires: ['node'] });
+
+
+}, '@VERSION@' ,{requires:['node']});
