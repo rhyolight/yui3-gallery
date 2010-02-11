@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<title>
+			YUI Form Binding Sandbox
+		</title>
+		<link type="text/css" rel="stylesheet" href="main.css"/>
+		<link type="text/css" rel="stylesheet" href="js/yui3/build/cssfonts/fonts.css"/>
+	</head>
+	<body class=" yui-skin-sam">
+
+		<div id="testLogger"></div>
+
+		<div id="formWrapper">
+		<form id="personal-info">
+		    <fieldset>
+		        <legend class="title"><span>Personal Information</span></legend>
+
+		        <div><label for="fname">First Name</label> <input type="text" name="fname" id="fname"></div>
+		        <div><label for="lname">Last Name</label> <input type="text" name="lname" id="lname"></div>
+		        <fieldset id="gender">
+		            <legend><span>Gender</span></legend> 
+		            <div>
+		                <label for="gender-male">Male</label> <input type="radio" name="gender" id="gender-male" checked> 
+		                <label for="gender-female">Female</label> <input type="radio" name="gender" id="gender-female">
+		            </div>
+		        </fieldset>
+		        <fieldset id="birth">
+		            <legend><span>Birthday</span></legend>
+
+		            <div>
+		                <label for="birth-month">Month</label>
+		                <select id="birth-month" name="birth-month">
+		                    <option value="1">January</option>
+		                    <option value="2">February</option>
+		                    <option value="3">March</option>
+		                    <option value="4">April</option>
+		                    <option value="5">May</option>
+		                    <option value="6">June</option>
+		                    <option value="7">July</option>
+		                    <option value="8">August</option>
+		                    <option value="9">September</option>
+		                    <option value="10">October</option>
+		                    <option value="11">November</option>
+		                    <option value="12">December</option>
+		                </select>
+
+		                <label for="birth-day">Day</label>
+		                <select id="birth-day" name="birth-day">
+		                    <option value="1">1</option>
+		                    <option value="2">2</option>
+		                    <option value="3">3</option>
+		                    <option value="4">4</option>
+		                    <option value="5">5</option>
+		                    <option value="6">6</option>
+		                    <option value="7">7</option>
+		                    <option value="8">8</option>
+		                    <option value="9">9</option>
+		                    <option value="10">10</option>
+		                    <option value="11">11</option>
+		                    <option value="12">12</option>
+		                    <option value="13">13</option>
+		                    <option value="14">14</option>
+		                    <option value="15">15</option>
+		                    <option value="16">16</option>
+		                    <option value="17">17</option>
+		                    <option value="18">18</option>
+		                    <option value="19">19</option>
+		                    <option value="20">20</option>
+		                    <option value="21">21</option>
+		                    <option value="22">22</option>
+		                    <option value="23">23</option>
+		                    <option value="24">24</option>
+		                    <option value="25">25</option>
+		                    <option value="26">26</option>
+		                    <option value="27">27</option>
+		                    <option value="28">28</option>
+		                    <option value="29">29</option>
+		                    <option value="30">30</option>
+		                    <option value="31">31</option>
+		                </select>
+
+		                <label for="birth-year">Year</label>
+		                <input type="text" id="birth-year" name="birth-year"/>
+		            </div>
+		        </fieldset>
+				<label for="bio">My Life Story</label>
+				<textarea id="bio" name="bio">Enter life story here.</textarea>
+			</fieldset>
+	
+		    <fieldset id="fav-sammiches" class="section">
+		        <legend><span>Favorite Sammiches</span></legend>
+		        <div><span><input type="checkbox" id="cheese" name="cheese"></span> <label for="cheese">Cheese</label></div>
+		        <div><span><input type="checkbox" id="egg" name="egg"></span> <label for="egg">Egg</label></div>
+		        <div><span><input type="checkbox" id="chicken" name="chicken"></span> <label for="chicken">Chicken</label></div>
+		        <div><span><input type="checkbox" id="rueben" name="rueben"></span> <label for="rueben">Rueben</label></div>
+		        <div><span><input type="checkbox" id="ham" name="ham"></span> <label for="ham">Ham</label></div>
+		    </fieldset>
+
+
+		
+		<!--
+
+		    <fieldset class="section">        
+		        <legend><span>Home</span></legend>
+		        <div><label for="home-address">Address</label> <textarea id="home-address" name="home-address"></textarea></div>
+		        <div><label for="home-city">City</label> <input type="text" id="home-city" name="home-city"></div>
+		        <div><label for="home-state">State</label> <input type="text" id="home-state" name="home-state"></div>
+		        <div><label for="home-zip">Postal/ZIP</label> <input type="text" id="home-zip" name="home-zip"></div>
+		    </fieldset>
+
+		    <fieldset class="section">
+		        <legend><span>Contact Information</span></legend>
+		        <div><label for="email">Email</label> <input type="text" id="email" name="email"></div>
+		        <div><label for="phone">Phone</label> <input type="text" id="phone" name="phone"></div>
+		    </fieldset>
+
+		    <fieldset id="preferences" class="section">
+		        <legend><span>Preferences</span></legend>
+		        <div><span><input type="checkbox" id="offers" name="offers" checked></span> <label for="offers">Send me offers</label></div>
+		        <div><span><input type="checkbox" id="promos" name="promos" checked></span> <label for="promos">Send me promotions</label></div>
+		    </fieldset>
+
+			-->
+			
+		    <div id="toolbar">
+		        <input type="button" id="signup" value="Submit">
+		        <input type="button" id="cancel" value="Cancel">        
+		    </div>
+
+		</form>		
+		</div><!-- formWrapper -->
+		
+		<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.0.0/build/yui/yui-min.js&3.0.0/build/dump/dump-min.js&3.0.0/build/substitute/substitute-min.js&3.0.0/build/json/json-min.js&3.0.0/build/oop/oop-min.js&3.0.0/build/event-custom/event-custom-min.js&3.0.0/build/dom/dom-min.js&3.0.0/build/attribute/attribute-min.js&3.0.0/build/queue-promote/queue-promote-min.js&3.0.0/build/event/event-min.js&3.0.0/build/node/node-base-min.js&3.0.0/build/datatype/datatype-xml-min.js&3.0.0/build/node/node-style-min.js&3.0.0/build/io/io-min.js&3.0.0/build/base/base-base-min.js&3.0.0/build/node/node-screen-min.js&3.0.0/build/pluginhost/pluginhost-min.js&3.0.0/build/node/node-pluginhost-min.js&3.0.0/build/anim/anim-min.js&3.0.0/build/test/test.js&3.0.0/build/console/console-min.js"></script>
+		<script type="text/javascript" src="../js/FormBind.js"></script>
+		<script type="text/javascript" src="FormBindTests.js"></script>
+		
+		<script>
+			YUI().use('*', function(Y) {
+				var logConsole = new Y.Console({
+			        newestOnTop : false,
+			        style: 'block',
+					height: '600px',
+					width: '600px'
+			    });
+			
+				logConsole.render('#testLogger');
+				
+				Y.Test.Runner.run();
+			});
+		</script>
+	</body>
+</html>

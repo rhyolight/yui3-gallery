@@ -1,0 +1,171 @@
+
+h1 {
+    margin: 1em;
+    font-weight: bold;
+}
+
+#personal-info {
+    margin: 1em;
+    padding: 1em;
+    border: solid 1px #000;
+    width: 400px;
+}
+
+#personal-info label {
+    width: 10em;
+    display: inline-block;
+    text-align: right;
+}
+
+#personal-info input[type=text],
+#personal-info textarea {
+    border: solid 1px #999;
+    width: 15em;
+}
+
+#personal-info legend {
+    font-weight: bold;
+}
+
+#personal-info legend span {
+    display: block;
+    padding: 0 .25em;
+}
+
+#personal-info div {
+    margin: .25em 0;
+}
+
+#personal-info textarea {
+    height: 3em;
+}
+
+#personal-info fieldset {
+    background-color: #ccc;
+    padding: .25em;
+    border: solid 1px #000;        
+}
+
+#personal-info #gender,
+#personal-info #birthday {
+    border: 0;
+}
+
+#gender legend,
+#birthday legend {
+    margin: 0 0 0 -.25em;
+    font-weight: normal;
+}
+
+#gender legend span,
+#birthday legend span{
+    width: 10em;
+    display: inline-block;
+    text-align: right;
+}
+
+#gender label,
+#birthday label {
+    display: inline;
+    width: auto;
+}
+
+#gender div,
+#birthday div {
+    margin: -1.5em 0 0 10.25em;
+}
+
+#birthday div label {
+    position: absolute;
+    left: -999em;
+}
+
+#personal-info #birth-year {
+    width: 4em;
+}
+
+#preferences label {
+    display: inline;
+}
+
+#preferences span {
+    width: 10em;
+    display: inline-block;
+    text-align: right;            
+}
+
+#preferences legend span {
+    width: auto;
+    text-align: left;
+}
+
+
+#dialog fieldset {
+    border: solid 1px #000;
+    background-color: #fff;
+}
+
+#dialog legend {
+    display: block;
+}
+
+#dialog legend span {
+    background-color: #ccc;
+    display: block;
+    border: solid 1px #000;
+    margin: 0 -1px;
+    font-weight: bold;
+    padding: 3px 6px;
+}
+
+#dialog label {
+    display: block;
+    padding: 3px 6px;
+}
+
+#dialog-bd p {
+    padding: .25em .5em;
+}
+
+.yui-widget-ft {
+    padding: 6px;
+}
+
+.shadow {
+	position: absolute;
+	z-index: -1;		
+	top: 2px;
+	left: -3px;
+	background-color: #000;
+	opacity: .12;
+	filter: alpha(opacity=12);	/*	For IE since it doesn't implement the CSS3 
+									"opacity" property. */
+	padding: 1px 3px 0 3px;
+	width: 100%;
+	height: 100%;            
+}
+
+#testLogger {
+    float: right;
+}
+
+.yui-console-entry-fail {
+    color: red;
+    background-color: pink;
+}
+
+.yui-console-entry-fail span.yui-console-entry-cat {
+    font-weight: bold;
+    color: white;
+    background-color: red;
+}
+
+.yui-console-entry-pass {
+    background-color: #9cd59f;
+}
+
+.yui-console-entry-pass span.yui-console-entry-cat {
+    font-weight: bold;
+    color: white;
+    background-color: green;
+}
