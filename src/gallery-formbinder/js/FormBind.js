@@ -55,35 +55,75 @@ YUI().add('FormBind', function(Y) {
         return {year: d.getFullYear(), month: d.getMonth()+1, day: d.getDate()};
     }
     
-    function handleItemGroup(g, label, formId, form) {
+    function handleItemGroup(g, formId, form, label) {
         var detailObjLabel = null,  // used to find out if we are inside a detail object
             target = null,          // element in form we're targeting 
             prop = null,            // a name of a data in the data object 
+            d = null,               // date object used if there is a date involved
             value = null,           // a value in the object
             sublabel = '';          // used to drill down into sub objects of a group
+        if (!label) label = '';
+        
         // handle each attribute
         for (prop in g) {
-            if (typeof g[prop] !== 'function') {                
+            if (typeof g[prop] !== 'function') {       
+                         
                 value = g[prop];
-                // if this is a date object, we want to break it up and resubmit
+                // if this is a date object, we want to break it up and re-handle it with an updated label
                 if (value instanceof Date) {
-                    this.formBind({label: prop, data:dateToObj(value)}, formId);
-                } else {
-                    if (detailObjLabel) {
-                        sublabel = detailObjLabel;
-                    } else {
-                        sublabel = label.length > 0 ? label + '-' + prop : prop;
-                        if (sublabel == 'label') {
-                            detailObjLabel = g[prop];
+                    handleItemGroup(dateToObj(value), formId, form, prop + '-');
+                    continue;
+                } 
+                // sublabel may need to be adjusted for Arrays
+                if (value instanceof Array) {
+                    if (!sublabel) {
+                        sublabel = prop;
+                    }
+                } 
+                // otherwise this is an object or a string
+                else {
+                    // if this is just the label for some data, set it and continue to the data
+                    if (prop == 'label') {
+                        sublabel = value;
+                        continue;
+                    } 
+                    // this is actually the data
+                    else if (prop == 'data') {
+                        // an object will be a subgroup of the label, so we adjust the label
+                        if (typeof value == 'object') {
+                            sublabel += '-';
+                        }
+                        // arrays and data objects need to pass through the method again
+                        if (typeof value != 'string') {
+                            handleItemGroup(value, formId, form, sublabel);
                             continue;
                         }
+                        if (!sublabel) {
+                            sublabel = label + prop;
+                        }
+                    } 
+                    // real date objects need formatting
+                    else if (prop == 'date') {
+                        if (!g['format']) {
+                            throw new Error('Cannot bind a date string without a format string. Need something like '
+                                + '"format:\'%Y/%b/%d\'" in binding config for date.');
+                        }
+                        d = new Date(Date.parse(value, g['format']));
+                        handleItemGroup(dateToObj(d), formId, form, label);
+                        return;
+                    } else {
+                        sublabel = label + prop;
                     }
-                }
+                } 
+                
                 target = form.one('#' + sublabel);
                 // if there is an element with an id matching this data key name
                 if (target) {
                     tagBindings[target.get('tagName').toLowerCase()](target, sublabel, value, g, form);
+                } else {
+                    throw new Error('Cannot bind form data to element named "' + sublabel + '" because it does not exist!');
                 }
+                
             }
         }
     }
@@ -92,36 +132,24 @@ YUI().add('FormBind', function(Y) {
     
     Y[FORMBIND_NAMESPACE][FORMBIND_NAME] = {
         
-        formBind: function(data, formId) {
-            var label = '',     // possible label of the data object
-                d = null,       // date object used if there is a date involved
-                i = 0,          // to iterate through arrays
+        formBind: function(data, form) {
+            var i = 0, formId = null;
+            
+            if (typeof form == 'string') {
+                formId = form;
                 form = Y.one('#' + formId);
+            }
 
             // uncheck any checkboxes in the form
             form.all('input[type="checkbox"]').set('checked', false);
 
-            // if there is a label, that means there is a map of data associated with this form object,
-            // so we'll take out the label and extract the data
-            if (data.label) {
-                label = data.label;
-                data = data.data;
-            }
-            
-            // if this data contains a date and format string, we'll need to process it differently
-            if (data.date && data.format) {
-                d = new Date(Date.parse(data.date, data.format));
-                return this.formBind({label: label, data:dateToObj(d)}, formId);
-            }
-            
             if (data instanceof Array) {
                 for (i = 0; i < data.length; i++) {
-                    handleItemGroup.call(this, data[i], label, formId, form);
+                    handleItemGroup.call(this, data[i], formId, form);
                 }
+            } else {
+                handleItemGroup.call(this, data, formId, form);
             }
-            
-            handleItemGroup.call(this, data, label, formId, form);
-
         }
         
     };

@@ -15,7 +15,8 @@ YUI.add("form_binding_tests", function(Y) {
         
         _should: {
             error: {
-                testBindDate_InMapFormat_ThrowsErrorWhenComboboxSelectionDoesntExist: 'Cannot bind value "41" to a combo box without that option available.'
+                testBindDate_InMapFormat_ThrowsErrorWhenComboboxSelectionDoesntExist: 'Cannot bind value "41" to a combo box without that option available.',
+                testDateStringBindingThrowsErrorWhenMissingFormat: 'Cannot bind a date string without a format string. Need something like "format:\'%Y/%b/%d\'" in binding config for date.'
             }
         },
         
@@ -117,26 +118,26 @@ YUI.add("form_binding_tests", function(Y) {
             assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');        },
         
         testBindDate_InMapFormat_MonthAndDayAsComboboxes_YearAsTextInput: function() {
-            var i = 0, d = {label:'birth', data:{year:1978, month:7, day:11}};
+            var i = 0, d = [{label:'birth', data:{year:1978, month:7, day:11}}];
 
             Y.forms.FormBind.formBind(d, 'personal-info');
 
             // month
             var monthOptions = Y.all('select#birth-month option');
             monthOptions.each(function(monthOption) {
-                if (monthOption.get('value') == d.data.month) {
-                    assert.isTrue(monthOption.get('selected'), 'because month is ' + d.data.month + ', month option with value of ' + monthOption.get('value') + ' should be selected');
+                if (monthOption.get('value') == 7) {
+                    assert.isTrue(monthOption.get('selected'), 'because month is 7, month option with value of ' + monthOption.get('value') + ' should be selected');
                 } else {
-                    assert.isFalse(monthOption.get('selected'), 'because month is ' + d.data.month + ', month option with value of ' + monthOption.get('value') + ' should not be selected');
+                    assert.isFalse(monthOption.get('selected'), 'because month is 7, month option with value of ' + monthOption.get('value') + ' should not be selected');
                 }
             });
             // day
             var dayOptions = Y.all('select#birth-day option');
             dayOptions.each(function(dayOption) {
-                if (dayOption.get('value') == d.data.day) {
-                    assert.isTrue(dayOption.get('selected'), 'because day is ' + d.data.day + ', day option with value of ' + dayOption.get('value') + ' should be selected');
+                if (dayOption.get('value') == 11) {
+                    assert.isTrue(dayOption.get('selected'), 'because day is 11, day option with value of ' + dayOption.get('value') + ' should be selected');
                 } else {
-                    assert.isFalse(dayOption.get('selected'), 'because day is ' + d.data.day + ', day option with value of ' + dayOption.get('value') + ' should not be selected');
+                    assert.isFalse(dayOption.get('selected'), 'because day is 11, day option with value of ' + dayOption.get('value') + ' should not be selected');
                 }
             });
             // year
@@ -158,7 +159,7 @@ YUI.add("form_binding_tests", function(Y) {
             }
             wrapperDiv.append(select);
 
-            var i = 0, d = {label:'birth', data:{year:1978, month:7, day:11}};
+            var i = 0, d = [{label:'birth', data:{year:1978, month:7, day:11}}];
 
             Y.forms.FormBind.formBind(d, 'personal-info');
             
@@ -169,17 +170,17 @@ YUI.add("form_binding_tests", function(Y) {
             // year
             var yearOptions = Y.all('select#birth-year option');
             yearOptions.each(function(yearOption) {
-                if (yearOption.get('value') == d.data.year) {
-                    assert.isTrue(yearOption.get('selected'), 'because year is ' + d.data.year + ', year option with value of ' + yearOption.get('value') + ' should be selected');
+                if (yearOption.get('value') == 1978) {
+                    assert.isTrue(yearOption.get('selected'), 'because year is 1978, year option with value of ' + yearOption.get('value') + ' should be selected');
                 } else {
-                    assert.isFalse(yearOption.get('selected'), 'because year is ' + d.data.year + ', year option with value of ' + yearOption.get('value') + ' should not be selected');
+                    assert.isFalse(yearOption.get('selected'), 'because year is 1978, year option with value of ' + yearOption.get('value') + ' should not be selected');
                 }
             });
         },
         
         // this test is configured to throw a specific error, see this._should.error for details (*vomit*)
         testBindDate_InMapFormat_ThrowsErrorWhenComboboxSelectionDoesntExist: function() {
-            var d = {label:'birth', data:{year:1978, month:7, day:41}};
+            var d = [{label:'birth', data:{year:1978, month:7, day:41}}];
 
             Y.forms.FormBind.formBind(d, 'personal-info');
         },
@@ -212,8 +213,8 @@ YUI.add("form_binding_tests", function(Y) {
             assert.areEqual('1978', Y.one('input#birth-year').get('value'), 'birth year was not correct');
         },
         
-        testBindDataString: function() {
-            var i = 0, d = {label:'birth', data:{date:'1978/07/11', format: '%Y/%b/%d'}};
+        testBindDateString: function() {
+            var i = 0, d = [{label:'birth', data:{date:'1978/07/11', format: '%Y/%b/%d'}}];
 
             Y.forms.FormBind.formBind(d, 'personal-info');
 
@@ -240,6 +241,13 @@ YUI.add("form_binding_tests", function(Y) {
             assert.areEqual('1978', Y.one('input#birth-year').get('value'), 'birth year was not correct');
         },
         
+        testDateStringBindingThrowsErrorWhenMissingFormat: function() {
+            var i = 0, d = [{label:'birth', data:{date:'1978/07/11'}}];
+
+            Y.forms.FormBind.formBind(d, 'personal-info');
+
+        },
+        
         testBindTextarea: function() {
             var d = {bio:'This is my entire life story.'};
             
@@ -253,6 +261,109 @@ YUI.add("form_binding_tests", function(Y) {
             
             Y.forms.FormBind.formBind(d, 'personal-info');
             
+            assert.areEqual('This is my entire life story.', Y.one('#bio').get('value'));
+        },
+        
+        testPassingFormNode: function() {
+            var d = [{label: 'bio', data: 'This is my entire life story.'}];
+            
+            Y.forms.FormBind.formBind(d, Y.one('#personal-info'));
+            
+            assert.areEqual('This is my entire life story.', Y.one('#bio').get('value'));
+        },
+        
+        testTheWholeDamnThing_InMap: function() {
+            var d = {
+                bio:'This is my entire life story.',
+                birth: new Date(1978, 6, 11, 0, 0, 0, 0),
+                fname: 'Matthew',
+                lname: 'Taylor',
+                gender:'Male',
+                'fav-sammiches': ['cheese', 'ham', 'rueben']
+            };
+            
+            Y.forms.FormBind.formBind(d, 'personal-info');
+            
+            var fname = Y.one('input#fname').get('value');
+            assert.isNotNull(fname, 'first name not entered');
+            assert.areEqual('Matthew', fname, 'first name was wrong');
+            var lname = Y.one('input#lname').get('value');
+            assert.isNotNull(lname, 'last name not entered');
+            assert.areEqual('Taylor', lname, 'last name was wrong');
+            assert.isTrue(Y.one('input#gender-male').get('checked'), 'male radio not checked');
+            assert.isFalse(Y.one('input#gender-female').get('checked'), 'female radio was checked');
+            assert.isTrue(Y.one('input#cheese').get('checked'), 'cheese was not checked');
+            assert.isFalse(Y.one('input#egg').get('checked'), 'egg was checked');
+            assert.isFalse(Y.one('input#chicken').get('checked'), 'chicken was checked');
+            assert.isTrue(Y.one('input#rueben').get('checked'), 'rueben was not checked');
+            assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');
+            // month
+            var monthOptions = Y.all('select#birth-month option');
+            monthOptions.each(function(monthOption) {
+                if (monthOption.get('value') == '7') {
+                    assert.isTrue(monthOption.get('selected'), 'because month is 7, month option with value of ' + monthOption.get('value') + ' should be selected');
+                } else {
+                    assert.isFalse(monthOption.get('selected'), 'because month is 7, month option with value of ' + monthOption.get('value') + ' should not be selected');
+                }
+            });
+            // day
+            var dayOptions = Y.all('select#birth-day option');
+            dayOptions.each(function(dayOption) {
+                if (dayOption.get('value') == 11) {
+                    assert.isTrue(dayOption.get('selected'), 'because day is 11, day option with value of ' + dayOption.get('value') + ' should be selected');
+                } else {
+                    assert.isFalse(dayOption.get('selected'), 'because day is 11, day option with value of ' + dayOption.get('value') + ' should not be selected');
+                }
+            });
+            // year
+            assert.areEqual('1978', Y.one('input#birth-year').get('value'), 'birth year was not correct');
+            assert.areEqual('This is my entire life story.', Y.one('#bio').get('value'));
+        },
+        
+        testTheWholeDamnThing_UsingDetailObjects: function() {
+            var d = [
+                {label:'bio', data:'This is my entire life story.'},
+                {label:'birth', data:{date:'1978/07/11', format: '%Y/%b/%d'}},
+                {label:'fname', data:'Matthew'}, {label:'lname', data:'Taylor'},
+                {label: 'gender', data:'male'},
+                {label: 'fav-sammiches', data: ['cheese', 'ham', 'rueben']}
+            ];
+            
+            Y.forms.FormBind.formBind(d, 'personal-info');
+            
+            var fname = Y.one('input#fname').get('value');
+            assert.isNotNull(fname, 'first name not entered');
+            assert.areEqual('Matthew', fname, 'first name was wrong');
+            var lname = Y.one('input#lname').get('value');
+            assert.isNotNull(lname, 'last name not entered');
+            assert.areEqual('Taylor', lname, 'last name was wrong');
+            assert.isTrue(Y.one('input#gender-male').get('checked'), 'male radio not checked');
+            assert.isFalse(Y.one('input#gender-female').get('checked'), 'female radio was checked');
+            assert.isTrue(Y.one('input#cheese').get('checked'), 'cheese was not checked');
+            assert.isFalse(Y.one('input#egg').get('checked'), 'egg was checked');
+            assert.isFalse(Y.one('input#chicken').get('checked'), 'chicken was checked');
+            assert.isTrue(Y.one('input#rueben').get('checked'), 'rueben was not checked');
+            assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');
+            // month
+            var monthOptions = Y.all('select#birth-month option');
+            monthOptions.each(function(monthOption) {
+                if (monthOption.get('value') == '7') {
+                    assert.isTrue(monthOption.get('selected'), 'because month is 7, month option with value of ' + monthOption.get('value') + ' should be selected');
+                } else {
+                    assert.isFalse(monthOption.get('selected'), 'because month is 7, month option with value of ' + monthOption.get('value') + ' should not be selected');
+                }
+            });
+            // day
+            var dayOptions = Y.all('select#birth-day option');
+            dayOptions.each(function(dayOption) {
+                if (dayOption.get('value') == 11) {
+                    assert.isTrue(dayOption.get('selected'), 'because day is 11, day option with value of ' + dayOption.get('value') + ' should be selected');
+                } else {
+                    assert.isFalse(dayOption.get('selected'), 'because day is 11, day option with value of ' + dayOption.get('value') + ' should not be selected');
+                }
+            });
+            // year
+            assert.areEqual('1978', Y.one('input#birth-year').get('value'), 'birth year was not correct');
             assert.areEqual('This is my entire life story.', Y.one('#bio').get('value'));
         }
         
