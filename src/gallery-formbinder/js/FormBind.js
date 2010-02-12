@@ -1,6 +1,5 @@
 YUI().add('FormBind', function(Y) {
     var FORMBIND_NAME = 'FormBind',
-        FORMBIND_NAMESPACE = 'forms',
         tagBindings = null;
         
         tagBindings = {};
@@ -62,7 +61,7 @@ YUI().add('FormBind', function(Y) {
             d = null,               // date object used if there is a date involved
             value = null,           // a value in the object
             sublabel = '';          // used to drill down into sub objects of a group
-        if (!label) label = '';
+        if (!label) {label = '';}
         
         // handle each attribute
         for (prop in g) {
@@ -104,11 +103,10 @@ YUI().add('FormBind', function(Y) {
                     } 
                     // real date objects need formatting
                     else if (prop == 'date') {
-                        if (!g['format']) {
-                            throw new Error('Cannot bind a date string without a format string. Need something like '
-                                + '"format:\'%Y/%b/%d\'" in binding config for date.');
+                        if (!g.format) {
+                            throw new Error('Cannot bind a date string without a format string. Need something like "format:\'%Y/%b/%d\'" in binding config for date.');
                         }
-                        d = new Date(Date.parse(value, g['format']));
+                        d = new Date(Date.parse(value, g.format));
                         handleItemGroup(dateToObj(d), formId, form, label);
                         return;
                     } else {
@@ -127,10 +125,8 @@ YUI().add('FormBind', function(Y) {
             }
         }
     }
-    
-    Y.namespace(FORMBIND_NAMESPACE);
-    
-    Y[FORMBIND_NAMESPACE][FORMBIND_NAME] = {
+
+    Y[FORMBIND_NAME] = {
         
         formBind: function(data, form) {
             var i = 0, formId = null;
@@ -154,5 +150,5 @@ YUI().add('FormBind', function(Y) {
         
     };
     
-    return Y[FORMBIND_NAMESPACE][FORMBIND_NAME];
+    return Y[FORMBIND_NAME];
 }, '0.1', { requires: ['node'] });
