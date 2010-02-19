@@ -13,12 +13,12 @@ YUI().add('FormBind', function(Y) {
         return false;
     }
     
-    function bindCheckboxes(data, form) {
+    function bindCheckboxes(data, label, form) {
         var input = form.all('input[type="checkbox"]');
         if (input.size() === 0) { return false; }
         Y.each(input, function(checkboxElement, i) {
             for (var cbVal in data) {
-                if (checkboxElement.get('id') == data[cbVal]) {
+                if (checkboxElement.get('id') == (label + data[cbVal])) {
                     checkboxElement.set('checked', true);
                 }
             }
@@ -43,7 +43,7 @@ YUI().add('FormBind', function(Y) {
         if (!bindRadio(name, value, form)) {
             // if the data is an array, they represent checkboxes that should be checked
             if (value instanceof Array) {
-                bindCheckboxes(value, form);
+                bindCheckboxes(value, name + '-', form);
             }
         }
     };
@@ -121,7 +121,8 @@ YUI().add('FormBind', function(Y) {
                 } else {
                     throw new Error('Cannot bind form data to element named "' + sublabel + '" because it does not exist!');
                 }
-                
+                // done with the subgroup, so we can reset the sublabel
+                sublabel = '';
             }
         }
     }
@@ -146,6 +147,27 @@ YUI().add('FormBind', function(Y) {
             } else {
                 handleItemGroup.call(this, data, formId, form);
             }
+        },
+        
+        extractForm: function(form) {
+            var data = {},      // return this
+                pieces = null,  // pieces of a hyphenated id
+                id = null;      // id of each element as we loop through form
+                
+            if (typeof form == 'string') {
+                form = Y.one('#' + form);
+            }
+            form.all('input').each(function(el) {
+                id = el.get('id');
+                if (id.indexOf('-') > 0) {
+                    pieces = id.split('-');
+                    if (el.get('checked'))
+                    data[pieces[0]] = pieces[1];
+                } else {
+                    data[id] = el.get('value');
+                }
+            });
+            return data;
         }
         
     };

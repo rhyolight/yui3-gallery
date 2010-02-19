@@ -11,7 +11,7 @@ YUI.add("form_binding_tests", function(Y) {
     
     testSuite.add(new Y.Test.Case({
         
-        name:'Basic Tests',
+        name:'Object to Form binding tests',
         
         _should: {
             error: {
@@ -65,8 +65,8 @@ YUI.add("form_binding_tests", function(Y) {
             
             Y.FormBind.formBind(d, 'personal-info');
             
-            assert.isTrue(Y.one('input#gender-male').get('checked'), 'male radio not checked');
-            assert.isFalse(Y.one('input#gender-female').get('checked'), 'female radio was checked');
+            assert.isTrue(Y.one('input#gender-male').get('checked'), 'gender-male radio not checked');
+            assert.isFalse(Y.one('input#gender-female').get('checked'), 'gender-female radio was checked');
         }, 
 
         testBindRadioInput_InDetailObject: function() {
@@ -74,8 +74,8 @@ YUI.add("form_binding_tests", function(Y) {
             
             Y.FormBind.formBind(d, 'personal-info');
             
-            assert.isTrue(Y.one('input#gender-male').get('checked'), 'male radio not checked');
-            assert.isFalse(Y.one('input#gender-female').get('checked'), 'female radio was checked');
+            assert.isTrue(Y.one('input#gender-male').get('checked'), 'gender-male radio not checked');
+            assert.isFalse(Y.one('input#gender-female').get('checked'), 'gender-female radio was checked');
         },
         
         testBindCheckbox: function() {
@@ -83,11 +83,11 @@ YUI.add("form_binding_tests", function(Y) {
             
             Y.FormBind.formBind(d, 'personal-info');
             
-            assert.isTrue(Y.one('input#cheese').get('checked'), 'cheese was not checked');
-            assert.isFalse(Y.one('input#egg').get('checked'), 'egg was checked');
-            assert.isFalse(Y.one('input#chicken').get('checked'), 'chicken was checked');
-            assert.isTrue(Y.one('input#rueben').get('checked'), 'rueben was not checked');
-            assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');
+            assert.isTrue(Y.one('input#fav-sammiches-cheese').get('checked'), 'cheese was not checked');
+            assert.isFalse(Y.one('input#fav-sammiches-egg').get('checked'), 'egg was checked');
+            assert.isFalse(Y.one('input#fav-sammiches-chicken').get('checked'), 'chicken was checked');
+            assert.isTrue(Y.one('input#fav-sammiches-rueben').get('checked'), 'rueben was not checked');
+            assert.isTrue(Y.one('input#fav-sammiches-ham').get('checked'), 'ham was not checked');
         },
         
         testBindCheckbox_InDetailObject: function() {
@@ -95,11 +95,11 @@ YUI.add("form_binding_tests", function(Y) {
             
             Y.FormBind.formBind(d, 'personal-info');
             
-            assert.isTrue(Y.one('input#cheese').get('checked'), 'cheese was not checked');
-            assert.isFalse(Y.one('input#egg').get('checked'), 'egg was checked');
-            assert.isFalse(Y.one('input#chicken').get('checked'), 'chicken was checked');
-            assert.isTrue(Y.one('input#rueben').get('checked'), 'rueben was not checked');
-            assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');
+            assert.isTrue(Y.one('input#fav-sammiches-cheese').get('checked'), 'cheese was not checked');
+            assert.isFalse(Y.one('input#fav-sammiches-egg').get('checked'), 'egg was checked');
+            assert.isFalse(Y.one('input#fav-sammiches-chicken').get('checked'), 'chicken was checked');
+            assert.isTrue(Y.one('input#fav-sammiches-rueben').get('checked'), 'rueben was not checked');
+            assert.isTrue(Y.one('input#fav-sammiches-ham').get('checked'), 'ham was not checked');
         },
         
         testBindCheckbox_WhenSomeCheckboxesAreAlreadyChecked : function() {
@@ -111,11 +111,12 @@ YUI.add("form_binding_tests", function(Y) {
             
             Y.FormBind.formBind(d, 'personal-info');
             
-            assert.isTrue(Y.one('input#cheese').get('checked'), 'cheese was not checked');
-            assert.isFalse(Y.one('input#egg').get('checked'), 'egg was checked');
-            assert.isFalse(Y.one('input#chicken').get('checked'), 'chicken was checked');
-            assert.isTrue(Y.one('input#rueben').get('checked'), 'rueben was not checked');
-            assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');        },
+            assert.isTrue(Y.one('input#fav-sammiches-cheese').get('checked'), 'cheese was not checked');
+            assert.isFalse(Y.one('input#fav-sammiches-egg').get('checked'), 'egg was checked');
+            assert.isFalse(Y.one('input#fav-sammiches-chicken').get('checked'), 'chicken was checked');
+            assert.isTrue(Y.one('input#fav-sammiches-rueben').get('checked'), 'rueben was not checked');
+            assert.isTrue(Y.one('input#fav-sammiches-ham').get('checked'), 'ham was not checked');        
+        },
         
         testBindDate_InMapFormat_MonthAndDayAsComboboxes_YearAsTextInput: function() {
             var i = 0, d = [{label:'birth', data:{year:1978, month:7, day:11}}];
@@ -290,13 +291,13 @@ YUI.add("form_binding_tests", function(Y) {
             var lname = Y.one('input#lname').get('value');
             assert.isNotNull(lname, 'last name not entered');
             assert.areEqual('Taylor', lname, 'last name was wrong');
-            assert.isTrue(Y.one('input#gender-male').get('checked'), 'male radio not checked');
-            assert.isFalse(Y.one('input#gender-female').get('checked'), 'female radio was checked');
-            assert.isTrue(Y.one('input#cheese').get('checked'), 'cheese was not checked');
-            assert.isFalse(Y.one('input#egg').get('checked'), 'egg was checked');
-            assert.isFalse(Y.one('input#chicken').get('checked'), 'chicken was checked');
-            assert.isTrue(Y.one('input#rueben').get('checked'), 'rueben was not checked');
-            assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');
+            assert.isTrue(Y.one('input#gender-male').get('checked'), 'gender-male radio not checked');
+            assert.isFalse(Y.one('input#gender-female').get('checked'), 'gender-female radio was checked');
+            assert.isTrue(Y.one('input#fav-sammiches-cheese').get('checked'), 'cheese was not checked');
+            assert.isFalse(Y.one('input#fav-sammiches-egg').get('checked'), 'egg was checked');
+            assert.isFalse(Y.one('input#fav-sammiches-chicken').get('checked'), 'chicken was checked');
+            assert.isTrue(Y.one('input#fav-sammiches-rueben').get('checked'), 'rueben was not checked');
+            assert.isTrue(Y.one('input#fav-sammiches-ham').get('checked'), 'ham was not checked');
             // month
             var monthOptions = Y.all('select#birth-month option');
             monthOptions.each(function(monthOption) {
@@ -337,13 +338,13 @@ YUI.add("form_binding_tests", function(Y) {
             var lname = Y.one('input#lname').get('value');
             assert.isNotNull(lname, 'last name not entered');
             assert.areEqual('Taylor', lname, 'last name was wrong');
-            assert.isTrue(Y.one('input#gender-male').get('checked'), 'male radio not checked');
-            assert.isFalse(Y.one('input#gender-female').get('checked'), 'female radio was checked');
-            assert.isTrue(Y.one('input#cheese').get('checked'), 'cheese was not checked');
-            assert.isFalse(Y.one('input#egg').get('checked'), 'egg was checked');
-            assert.isFalse(Y.one('input#chicken').get('checked'), 'chicken was checked');
-            assert.isTrue(Y.one('input#rueben').get('checked'), 'rueben was not checked');
-            assert.isTrue(Y.one('input#ham').get('checked'), 'ham was not checked');
+            assert.isTrue(Y.one('input#gender-male').get('checked'), 'gender-male radio not checked');
+            assert.isFalse(Y.one('input#gender-female').get('checked'), 'gender-female radio was checked');
+            assert.isTrue(Y.one('input#fav-sammiches-cheese').get('checked'), 'cheese was not checked');
+            assert.isFalse(Y.one('input#fav-sammiches-egg').get('checked'), 'egg was checked');
+            assert.isFalse(Y.one('input#fav-sammiches-chicken').get('checked'), 'chicken was checked');
+            assert.isTrue(Y.one('input#fav-sammiches-rueben').get('checked'), 'rueben was not checked');
+            assert.isTrue(Y.one('input#fav-sammiches-ham').get('checked'), 'ham was not checked');
             // month
             var monthOptions = Y.all('select#birth-month option');
             monthOptions.each(function(monthOption) {
@@ -369,6 +370,86 @@ YUI.add("form_binding_tests", function(Y) {
         
 
     }));
+    
+    /*
+    testSuite.add(new Y.Test.Case({
+        
+        name:'Form to Object binding tests',
+        
+        _should: {
+            error: {
+            }
+        },
+        
+        // stores the clean empty form on the first test run
+        setUp: function() {
+            var f = Y.one('#personal-info');
+            f.one('#fname').set('value', 'Matthew');
+            f.one('#lname').set('value', 'Taylor');
+            f.one('#birth-month option[value=7]').set('selected', true);
+            f.one('#birth-day option[value=11]').set('selected', true);
+            f.one('#birth-year').set('value', 1978);
+            f.one('#bio').set('value', 'This is my entire life story.');
+            f.one('#fav-sammiches-cheese').set('checked', true);
+            f.one('#fav-sammiches-ham').set('checked', true);
+            f.one('#fav-sammiches-rueben').set('checked', true);
+            if (!this.cleanFormMarkup) {
+                this.cleanFormMarkup = Y.one('#formWrapper').get('innerHTML');
+            }
+        },
+        
+        // replaces the dirty form with the clean one
+        tearDown: function() {
+            Y.one('#formWrapper').set('innerHTML', this.cleanFormMarkup);
+        },
+        
+        testBindTextInput: function(){
+            var d = Y.FormBind.extractForm('personal-info');
+            assert.isNotNull(d.fname, 'No first name value');
+            assert.isNotNull(d.lname, 'No last name value');
+            assert.areEqual('Matthew', d.fname);
+            assert.areEqual('Taylor', d.lname);
+        },
+        
+        testBindRadioInput: function() {
+            var d = Y.FormBind.extractForm('personal-info');
+            assert.isNotNull(d.gender);
+            assert.areEqual('male', d.gender);
+        },
+        
+        testBindCheckbox: function() {
+            var d = Y.FormBind.extractForm('personal-info');
+            assert.isNotNull(d['fav-sammiches'], 'Checkbox was null');
+            assert.isArray(d['fav-sammiches'], 'Checkbox data was not array');
+            assert.areEqual(3, d['fav-sammiches'].length, 'checkbox data wrong length');
+            var founds = {cheese:false, ham:false, rueben:false};
+            Y.each(d['fav-sammiches'], function(sammy) {
+                founds[sammy] = true;
+            });
+            for(var f in founds) {
+                assert.isTrue(founds[f], f + ' was not found');
+            };
+        },
+        
+        testBindDate_InMapFormat_MonthAndDayAsComboboxes_YearAsTextInput: function() {
+            assert.fail('not implemented');
+        },
+        
+        testBindDate_InMapFormat_MonthAndDayAreText_AndYearIsComboBox: function() {
+            assert.fail('not implemented');
+        },
+        
+        testBindTextarea: function() {
+            assert.fail('not implemented');
+        },
+        
+        testTheWholeDamnThing_InMap: function() {
+            assert.fail('not implemented');
+        }
+        
+
+    }));
+    */
     
     Y.Test.Runner.add(testSuite);
     
