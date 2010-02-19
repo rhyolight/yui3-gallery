@@ -1,11 +1,12 @@
 YUI().add('FormBind', function(Y) {
     var FORMBIND_NAME = 'FormBind',
+        labelDelimiter = '-',
         tagBindings = null;
         
         tagBindings = {};
     
     function bindRadio(name, value, form) {
-        var input = form.one('input[type="radio"]#' + name + '-' + value);
+        var input = form.one('input[type="radio"]#' + name + labelDelimiter + value);
         if (input) {
             input.set('checked', true);
             return true;
@@ -43,7 +44,7 @@ YUI().add('FormBind', function(Y) {
         if (!bindRadio(name, value, form)) {
             // if the data is an array, they represent checkboxes that should be checked
             if (value instanceof Array) {
-                bindCheckboxes(value, name + '-', form);
+                bindCheckboxes(value, name + labelDelimiter, form);
             }
         }
     };
@@ -70,7 +71,7 @@ YUI().add('FormBind', function(Y) {
                 value = g[prop];
                 // if this is a date object, we want to break it up and re-handle it with an updated label
                 if (value instanceof Date) {
-                    handleItemGroup(dateToObj(value), formId, form, prop + '-');
+                    handleItemGroup(dateToObj(value), formId, form, prop + labelDelimiter);
                     continue;
                 } 
                 // sublabel may need to be adjusted for Arrays
@@ -90,7 +91,7 @@ YUI().add('FormBind', function(Y) {
                     else if (prop == 'data') {
                         // an object will be a subgroup of the label, so we adjust the label
                         if (typeof value == 'object') {
-                            sublabel += '-';
+                            sublabel += labelDelimiter;
                         }
                         // arrays and data objects need to pass through the method again
                         if (typeof value != 'string') {
@@ -129,8 +130,12 @@ YUI().add('FormBind', function(Y) {
 
     Y[FORMBIND_NAME] = {
         
-        formBind: function(data, form) {
-            var i = 0, formId = null;
+        pushData: function(data, form, delimiter) {
+            var i = 0, formId = null, oldDelimiter = labelDelimiter;
+            
+            if (delimiter) {
+                labelDelimiter = delimiter;
+            }
             
             if (typeof form == 'string') {
                 formId = form;
@@ -147,9 +152,10 @@ YUI().add('FormBind', function(Y) {
             } else {
                 handleItemGroup.call(this, data, formId, form);
             }
+            labelDelimiter = oldDelimiter;
         },
         
-        extractForm: function(form) {
+        pullData: function(form) {
             var data = {},      // return this
                 pieces = null,  // pieces of a hyphenated id
                 id = null;      // id of each element as we loop through form
@@ -159,8 +165,8 @@ YUI().add('FormBind', function(Y) {
             }
             form.all('input').each(function(el) {
                 id = el.get('id');
-                if (id.indexOf('-') > 0) {
-                    pieces = id.split('-');
+                if (id.indexOf(labelDelimiter) > 0) {
+                    pieces = id.split(labelDelimiter);
                     if (el.get('checked'))
                     data[pieces[0]] = pieces[1];
                 } else {
