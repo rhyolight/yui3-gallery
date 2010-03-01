@@ -1,0 +1,61 @@
+TestBed
+-------
+
+* THIS SOFTWARE IS UNDER DEVELOPMENT *
+
+:: Summary ::
+
+TestBed is a lightweight extension to YUI Test that provides:
+- selective test and suite execution from command line
+- local or remote test execution and reporting (on screen or JUnit XML)
+- Selenium integration for multi-environment tests
+
+:: Requires ::
+
+- NodeJS
+- YUI3 & YUI Test
+- A Selenium server (only for remote testing)
+- Selenium Test Driver http://wiki.github.com/nzakas/yuitest/selenium-driver (only for remote testing)
+- Java (for selenium test driver)
+
+:: Usage ::
+
+Write tests normally with YUI Test. Each test must be added to the Y.Test.Runner normally for TestBed to recognize them. To install TestBed, copy the entire testbed directory into js/tests (or wherever you wish). In your test html files, include the TestBed.js script.
+
+Replace your call to Y.Test.Runner.run() with a call to Y.TestBed.run(). You can pass it configuration for console logging or remote test result posting to other servers.
+
+For example:
+
+Y.TestBed.run({
+	report: {
+		screen: true,
+		post: {
+			url: "http://localhost:8003" // posts to the nodejs server
+		}
+	}
+});
+
+Now run the testbed.sh script in testbed/bin:
+
+./testbed/bin/testbed.sh
+
+	script options:
+	-l		run locally, without using selenium
+	-t <names>	test names, comma delimited, no spaces
+	-s <suites>	suite names, comma delimited, no spaces
+	-p		posts test results to local nodejs server in local mode
+
+This script runs in two modes: local, remote.
+
+Local: In this mode, the script will start up a local nodejs server (if -p is specified), then open up the test html file in the default browser. If -p is specified and the report.post.url option of Y.TestBed.run configuration is set, the test will post results to the url specified.
+
+Remote: When run without the -l option, local files are staged and moved into the nodejs webroot so they can be run in a web server. Selenium needs these tests to be running in a server for it to evaluate tests. The nodejs server will server up the html and tests, and the script will notify selenium of the test location. Once the nodejs server stops receiving requests, it will shut down.
+
+:: Components ::
+
+Bash Script --
+TODO
+TestBed JavaScript Framework --
+TODO
+NodeJS Server --
+TODO

@@ -1,6 +1,7 @@
 YUI().add('FormBind', function(Y) {
     var FORMBIND_NAME = 'FormBind',
-        labelDelimiter = '-',
+        DEFAULT_DELIMITER = '-',
+        labelDelimiter = DEFAULT_DELIMITER,
         tagBindings = null;
         
         tagBindings = {};
@@ -131,7 +132,7 @@ YUI().add('FormBind', function(Y) {
     Y[FORMBIND_NAME] = {
         
         pushData: function(data, form, delimiter) {
-            var i = 0, formId = null, oldDelimiter = labelDelimiter;
+            var i = 0, formId = null;
             
             if (delimiter) {
                 labelDelimiter = delimiter;
@@ -152,14 +153,18 @@ YUI().add('FormBind', function(Y) {
             } else {
                 handleItemGroup.call(this, data, formId, form);
             }
-            labelDelimiter = oldDelimiter;
+            labelDelimiter = DEFAULT_DELIMITER;
         },
         
-        pullData: function(form) {
+        pullData: function(form, delimiter) {
             var data = {},      // return this
                 pieces = null,  // pieces of a hyphenated id
                 id = null;      // id of each element as we loop through form
-                
+            
+            if (delimiter) {
+                labelDelimiter = delimiter;
+            }
+            
             if (typeof form == 'string') {
                 form = Y.one('#' + form);
             }
@@ -167,12 +172,23 @@ YUI().add('FormBind', function(Y) {
                 id = el.get('id');
                 if (id.indexOf(labelDelimiter) > 0) {
                     pieces = id.split(labelDelimiter);
-                    if (el.get('checked'))
-                    data[pieces[0]] = pieces[1];
+                    if (el.get('checked')) {
+                        // if there is already a value
+                        if (data[pieces[0]]) {
+                            // string needs to be put into a new array
+                            if (typeof data[pieces[0]] == 'string') {
+                                var v = data[pieces[0]];
+                                data[pieces[0]] = [v];                                
+                            }
+                            data[pieces[0]].push(pieces[1]);
+                        }
+                        data[pieces[0]] = pieces[1];
+                    }
                 } else {
                     data[id] = el.get('value');
                 }
             });
+            labelDelimiter = DEFAULT_DELIMITER;
             return data;
         }
         

@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<title>
+			YUI Starter
+		</title>
+		<link type="text/css" rel="stylesheet" href="js/yui3/build/cssfonts/fonts.css">
+	</head>
+	<body class=" yui-skin-sam">
+
+		<script type="text/javascript" src="js/yui3/build/yui/yui.js"></script>
+		<script type="text/javascript" src="js/test/testbed/TestBed.js"></script>
+		<script type="text/javascript" src="js/test/colorTests.js"></script>
+		<script type="text/javascript" src="js/test/trees/treeTests.js"></script>
+		
+		<script>
+			YUI().use('*', function(Y) {
+				Y.TestBed.run({
+					report: {
+						screen: true,
+						post: {
+							url: 'http://localhost:8003'
+						} 
+					}
+				});
+			});
+		</script>
+		
+	</body>
+</html>
