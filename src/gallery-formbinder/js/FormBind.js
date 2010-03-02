@@ -169,11 +169,11 @@ YUI().add('FormBind', function(Y) {
             if (typeof form == 'string') {
                 form = Y.one('#' + form);
             }
-            form.all('input, select').each(function(el) {
+            form.all('input, select, textarea').each(function(el) {
                 id = el.get('id');
+                type = el.get('tagName') == 'SELECT' ? 'select' : el.get('type');
                 if (id.indexOf(labelDelimiter) > 0) {
                     pieces = id.split(labelDelimiter);
-                    type = el.get('tagName') == 'SELECT' ? 'select' : el.get('type');
                     switch (type) {
                         // radio and checkbox are treated the same
                         case 'radio':
@@ -204,7 +204,19 @@ YUI().add('FormBind', function(Y) {
                             throw new Error('Unexpected input type: \'' + type + '\'');
                     }
                 } else {
-                    data[id] = el.get('value');
+                    switch (type) {
+                        case 'text':
+                            data[id] = el.get('value');
+                            break;
+                        case 'textarea':
+                            data[id] = el.get('text');
+                            break;
+                        // ignore buttons
+                        case 'button':
+                            break;
+                        default:
+                            throw new Error('Unexpected input type: \'' + type + '\'');
+                    }
                 }
             });
             labelDelimiter = DEFAULT_DELIMITER;
