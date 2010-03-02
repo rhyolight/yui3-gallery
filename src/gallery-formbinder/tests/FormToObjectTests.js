@@ -1,4 +1,4 @@
-YUI.add("form_binding_tests", function(Y) {
+YUI.add("form_to_obj_tests", function(Y) {
     var assert = Y.Assert;
              
     //-------------------------------------------------------------------------
@@ -23,9 +23,9 @@ YUI.add("form_binding_tests", function(Y) {
             var f = Y.one('#personal-info');
             f.one('#fname').set('value', 'Matthew');
             f.one('#lname').set('value', 'Taylor');
-            f.one('#birth_month option[value=7]').set('selected', true);
+            f.one('#birth_month option[value=3]').set('selected', true);
             f.one('#birth_day option[value=11]').set('selected', true);
-            f.one('#birth_year').set('value', 1978);
+            f.one('#birth_year').set('value', 1971);
             f.one('#bio').set('value', 'This is my entire life story.');
             f.one('#fav-sammiches_cheese').set('checked', true);
             f.one('#fav-sammiches_ham').set('checked', true);
@@ -69,11 +69,37 @@ YUI.add("form_binding_tests", function(Y) {
         },
         
         testBindDate_InMapFormat_MonthAndDayAsComboboxes_YearAsTextInput: function() {
-            assert.fail('not implemented');
+            var d = Y.FormBind.pullData('personal-info', '_');
+            assert.isNotNull(d.birth, 'birth date array was null');
+            assert.areEqual(1971, d.birth.year, 'wrong year of birth');
+            assert.areEqual('3', d.birth.month, 'wrong month of birth');
+            assert.areEqual(11, d.birth.day, 'wrong day of birth');
         },
         
         testBindDate_InMapFormat_MonthAndDayAreText_AndYearIsComboBox: function() {
-            assert.fail('not implemented');
+            // first replace the month and day combos with text inputs
+            Y.one('select#birth_month').remove()
+            Y.one('select#birth_day').remove()
+            var wrapperDiv = Y.one('#birth div');
+            wrapperDiv.append(Y.Node.create('<input type="text" id="birth_month" name="birth_month"/>'));
+            wrapperDiv.append(Y.Node.create('<input type="text" id="birth_day" name="birth_day"/>'));
+            // now replace the year text input with a select with options
+            Y.one('input#birth_year').remove();
+            var select = Y.Node.create('<select id="birth_year" name="birth_year"></select>');
+            for (var i=1950; i<2000; i++) {
+                select.append(Y.Node.create('<option value="' + i + '">'+ i + '</option>'));
+            }
+            wrapperDiv.append(select);
+            var f = Y.one('#personal-info');
+            f.one('#birth_month').set('value', 'March');
+            f.one('#birth_day').set('value', 11);
+            f.one('#birth_year option[value=1971]').set('selected', true);
+            
+            var d = Y.FormBind.pullData('personal-info', '_');
+            assert.isNotNull(d.birth, 'birth date array was null');
+            assert.areEqual(1971, d.birth.year, 'wrong year of birth');
+            assert.areEqual('March', d.birth.month, 'wrong month of birth');
+            assert.areEqual(11, d.birth.day, 'wrong day of birth');        
         },
         
         testBindTextarea: function() {
@@ -81,6 +107,10 @@ YUI.add("form_binding_tests", function(Y) {
         },
         
         testTheWholeDamnThing_InMap: function() {
+            assert.fail('not implemented');
+        },
+        
+        testButtonValuesAreNotPulled: function() {
             assert.fail('not implemented');
         }
 

@@ -158,8 +158,9 @@ YUI().add('FormBind', function(Y) {
         
         pullData: function(form, delimiter) {
             var data = {},      // return this
-                pieces = null,  // pieces of a hyphenated id
-                id = null;      // id of each element as we loop through form
+                type,           // type of the html element input
+                pieces,         // pieces of a hyphenated id
+                id;             // id of each element as we loop through form
             
             if (delimiter) {
                 labelDelimiter = delimiter;
@@ -168,21 +169,39 @@ YUI().add('FormBind', function(Y) {
             if (typeof form == 'string') {
                 form = Y.one('#' + form);
             }
-            form.all('input').each(function(el) {
+            form.all('input, select').each(function(el) {
                 id = el.get('id');
                 if (id.indexOf(labelDelimiter) > 0) {
                     pieces = id.split(labelDelimiter);
-                    if (el.get('checked')) {
-                        // if there is already a value
-                        if (data[pieces[0]]) {
-                            // string needs to be put into a new array
-                            if (typeof data[pieces[0]] == 'string') {
-                                var v = data[pieces[0]];
-                                data[pieces[0]] = [v];                                
+                    type = el.get('tagName') == 'SELECT' ? 'select' : el.get('type');
+                    switch (type) {
+                        // radio and checkbox are treated the same
+                        case 'radio':
+                        case 'checkbox':
+                            // if it is checked, then we have a radio or checkbox
+                            if (el.get('checked')) {
+                                // if there is already a value
+                                if (data[pieces[0]]) {
+                                    // string needs to be put into a new array
+                                    if (typeof data[pieces[0]] == 'string') {
+                                        var v = data[pieces[0]];
+                                        data[pieces[0]] = [v];                                
+                                    }
+                                    data[pieces[0]].push(pieces[1]);
+                                } else {
+                                    data[pieces[0]] = pieces[1];
+                                }
                             }
-                            data[pieces[0]].push(pieces[1]);
-                        }
-                        data[pieces[0]] = pieces[1];
+                            break;
+                        case 'select':
+                        case 'text':
+                            if (!data[pieces[0]]) {
+                                data[pieces[0]] = {}
+                            }
+                            data[pieces[0]][pieces[1]] = el.get('value');
+                            break;
+                        default:
+                            throw new Error('Unexpected input type: \'' + type + '\'');
                     }
                 } else {
                     data[id] = el.get('value');
