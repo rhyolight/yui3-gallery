@@ -63,7 +63,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindRadioInput: function() {
             var d = {gender: 'male'};
             
-            Y.FormBind.pushData(d, 'personal-info');
+            Y.FormBind.pushData(d, 'personal-info', '_');
             
             assert.isTrue(Y.one('input#gender_male').get('checked'), 'gender_male radio not checked');
             assert.isFalse(Y.one('input#gender_female').get('checked'), 'gender_female radio was checked');
@@ -72,7 +72,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindRadioInput_InDetailObject: function() {
             var d = [{label: 'gender', data:'male'}];
             
-            Y.FormBind.pushData(d, 'personal-info');
+            Y.FormBind.pushData(d, 'personal-info', '_');
             
             assert.isTrue(Y.one('input#gender_male').get('checked'), 'gender_male radio not checked');
             assert.isFalse(Y.one('input#gender_female').get('checked'), 'gender_female radio was checked');
@@ -279,7 +279,7 @@ YUI.add("obj_to_form_tests", function(Y) {
                 birth: new Date(1971, 2, 11, 0, 0, 0, 0),
                 fname: 'Matthew',
                 lname: 'Taylor',
-                gender:'Male',
+                gender:'male',
                 'fav-sammiches': ['cheese', 'ham', 'rueben']
             };
             

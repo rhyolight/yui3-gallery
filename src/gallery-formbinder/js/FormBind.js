@@ -1,68 +1,54 @@
+/**
+ * Provides functions to bind JavaScript data objects to HTML forms, and extract
+ * HTML form data back into JavaScript data objects.
+ * @module FormBind
+ * @requires node
+ */
 YUI().add('FormBind', function(Y) {
     var FORMBIND_NAME = 'FormBind',
+        // a delimiter is used when form input is grouped
         DEFAULT_DELIMITER = '-',
-        labelDelimiter = DEFAULT_DELIMITER,
-        tagBindings = null;
-        
+        // this object contains the binding processes for each type of form element by name
         tagBindings = {};
     
-    function bindRadio(name, value, form) {
-        var input = form.one('input[type="radio"]#' + name + labelDelimiter + value);
-        if (input) {
-            input.set('checked', true);
-            return true;
-        } 
-        return false;
-    }
+    tagBindings.radio = function(target) {
+        target.set('checked', true);
+    };
     
-    function bindCheckboxes(data, label, form) {
-        var input = form.all('input[type="checkbox"]');
-        if (input.size() === 0) { return false; }
-        Y.each(input, function(checkboxElement, i) {
-            for (var cbVal in data) {
-                if (checkboxElement.get('id') == (label + data[cbVal])) {
-                    checkboxElement.set('checked', true);
-                }
-            }
-        });
-    }
+    tagBindings.checkbox = function(target) {
+        target.set('checked', true);
+    };
     
-    tagBindings.input = function(target, name, value) {
+    tagBindings.input = function(target, value) {
         target.set('value', value);
     };
-    tagBindings.textarea = function(target, name, value) {
-        target.set('value', value);
+    
+    tagBindings.textarea = function(target, value) {
+        target.set('text', value);
     };
-    tagBindings.select = function(target, name, value) {
+    tagBindings.select = function(target, value) {
         var field = target.one('option[value=' + value +']');
         if (!field) {
             throw new Error('Cannot bind value "' + value + '" to a combo box without that option available.');
         }
         field.set('selected', true);
     };
-    tagBindings.fieldset = function(target, name, value, data, form) {
-        // attempt to bind to a group of radio buttons, but if that fails then try other stuff
-        if (!bindRadio(name, value, form)) {
-            // if the data is an array, they represent checkboxes that should be checked
-            if (value instanceof Array) {
-                bindCheckboxes(value, name + labelDelimiter, form);
-            }
-        }
-    };
     
-    
-    
-    function dateToObj(d) {
-        return {year: d.getFullYear(), month: d.getMonth()+1, day: d.getDate()};
+    function dateToObj(d, delim, label) {
+        var result = {};
+        result[label + delim + 'year'] = d.getFullYear();
+        result[label + delim + 'month'] = d.getMonth()+1;
+        result[label + delim + 'day'] = d.getDate();
+        return result;
     }
     
-    function handleItemGroup(g, formId, form, label) {
+    function handleItemGroup(g, form, delim, label) {
         var detailObjLabel = null,  // used to find out if we are inside a detail object
             target = null,          // element in form we're targeting 
             prop = null,            // a name of a data in the data object 
             d = null,               // date object used if there is a date involved
-            value = null,           // a value in the object
-            sublabel = '';          // used to drill down into sub objects of a group
+            value = null;           // a value in the object
+
         if (!label) {label = '';}
         
         // handle each attribute
@@ -72,59 +58,44 @@ YUI().add('FormBind', function(Y) {
                 value = g[prop];
                 // if this is a date object, we want to break it up and re-handle it with an updated label
                 if (value instanceof Date) {
-                    handleItemGroup(dateToObj(value), formId, form, prop + labelDelimiter);
+                    handleItemGroup(dateToObj(value, delim, prop), form, delim, prop + delim);
                     continue;
-                } 
-                // sublabel may need to be adjusted for Arrays
-                if (value instanceof Array) {
-                    if (!sublabel) {
-                        sublabel = prop;
-                    }
                 } 
                 // otherwise this is an object or a string
                 else {
-                    // if this is just the label for some data, set it and continue to the data
-                    if (prop == 'label') {
-                        sublabel = value;
-                        continue;
-                    } 
-                    // this is actually the data
-                    else if (prop == 'data') {
-                        // an object will be a subgroup of the label, so we adjust the label
-                        if (typeof value == 'object') {
-                            sublabel += labelDelimiter;
-                        }
-                        // arrays and data objects need to pass through the method again
-                        if (typeof value != 'string') {
-                            handleItemGroup(value, formId, form, sublabel);
-                            continue;
-                        }
-                        if (!sublabel) {
-                            sublabel = label + prop;
-                        }
-                    } 
-                    // real date objects need formatting
-                    else if (prop == 'date') {
+                    if (prop == 'date') {
                         if (!g.format) {
                             throw new Error('Cannot bind a date string without a format string. Need something like "format:\'%Y/%b/%d\'" in binding config for date.');
                         }
                         d = new Date(Date.parse(value, g.format));
-                        handleItemGroup(dateToObj(d), formId, form, label);
+                        handleItemGroup(dateToObj(d, label), form, delim, label);
                         return;
-                    } else {
-                        sublabel = label + prop;
                     }
                 } 
                 
-                target = form.one('#' + sublabel);
+                target = form.one('#' + prop);
                 // if there is an element with an id matching this data key name
                 if (target) {
-                    tagBindings[target.get('tagName').toLowerCase()](target, sublabel, value, g, form);
+                    // if this is a fieldset grouping, we'll need to go deeper
+                    if (target.get('tagName').toLowerCase() == 'fieldset') {
+                        // radio value
+                        if (typeof value == 'string') {
+                            target = form.one('#' + prop + delim + value);
+                            tagBindings[target.get('type').toLowerCase()](target);                            
+                        } 
+                        // checkbox values
+                        else if (value instanceof Array) {
+                            for (var i in value) {
+                                target = form.one('#' + prop + delim + value[i]);
+                                tagBindings[target.get('type').toLowerCase()](target);
+                            }
+                        }
+                    } else {
+                        tagBindings[target.get('tagName').toLowerCase()](target, value, prop, g, form);
+                    }
                 } else {
-                    throw new Error('Cannot bind form data to element named "' + sublabel + '" because it does not exist!');
+                    throw new Error('Cannot bind form data to element named "' + prop + '" because it does not exist!');
                 }
-                // done with the subgroup, so we can reset the sublabel
-                sublabel = '';
             }
         }
     }
@@ -132,15 +103,14 @@ YUI().add('FormBind', function(Y) {
     Y[FORMBIND_NAME] = {
         
         pushData: function(data, form, delimiter) {
-            var i = 0, formId = null;
+            var i = 0;
             
-            if (delimiter) {
-                labelDelimiter = delimiter;
-            }
+            if (!delimiter) { delimiter = DEFAULT_DELIMITER; }
+            
+            data = this.normalizeLabels(data, delimiter);
             
             if (typeof form == 'string') {
-                formId = form;
-                form = Y.one('#' + formId);
+                form = Y.one('#' + form);
             }
 
             // uncheck any checkboxes in the form
@@ -148,12 +118,11 @@ YUI().add('FormBind', function(Y) {
 
             if (data instanceof Array) {
                 for (i = 0; i < data.length; i++) {
-                    handleItemGroup.call(this, data[i], formId, form);
+                    handleItemGroup.call(this, data[i], form, delimiter);
                 }
             } else {
-                handleItemGroup.call(this, data, formId, form);
+                handleItemGroup.call(this, data, form, delimiter);
             }
-            labelDelimiter = DEFAULT_DELIMITER;
         },
         
         pullData: function(form, delimiter) {
@@ -162,18 +131,17 @@ YUI().add('FormBind', function(Y) {
                 pieces,         // pieces of a hyphenated id
                 id;             // id of each element as we loop through form
             
-            if (delimiter) {
-                labelDelimiter = delimiter;
-            }
+            if (!delimiter) { delimiter = DEFAULT_DELIMITER; }
+            
             
             if (typeof form == 'string') {
                 form = Y.one('#' + form);
             }
             form.all('input, select, textarea').each(function(el) {
                 id = el.get('id');
-                type = el.get('tagName') == 'SELECT' ? 'select' : el.get('type');
-                if (id.indexOf(labelDelimiter) > 0) {
-                    pieces = id.split(labelDelimiter);
+                type = el.get('tagName').toLowerCase() == 'select' ? 'select' : el.get('type');
+                if (id.indexOf(delimiter) > 0) {
+                    pieces = id.split(delimiter);
                     switch (type) {
                         // radio and checkbox are treated the same
                         case 'radio':
@@ -219,8 +187,73 @@ YUI().add('FormBind', function(Y) {
                     }
                 }
             });
-            labelDelimiter = DEFAULT_DELIMITER;
             return data;
+        },
+        
+        normalizeLabels: function(data, delim, label) {
+            if (data instanceof Array) {
+                var result = {};
+                for (var i in data) {
+                    var oneResult = this.normalizeLabels(data[i]);
+                    if (this.containsGroup(oneResult)) {
+                        // for a subgroup, we normalize again
+                        oneResult = this.normalizeLabels(oneResult, delim);
+                    }
+                    for (var j in oneResult) {
+                        result[j] = oneResult[j];
+                    }
+                }
+                return result;
+            } else if (typeof data == 'string') {
+                if (label) {
+                    var result = {};
+                    result[label] = data;
+                    return result;
+                }
+                return data;                
+            } else {
+                if (data.label) {
+                    var result = {};
+                    result[data.label] = data.data;
+                    return result;
+                }
+                if (this.containsGroup(data)) {
+                    var result = {};
+                    for (var i in data) {
+                        var oneResult = this.normalizeLabels(data[i], delim, i);
+                        for (var j in oneResult) {
+                            var key = label ? label + delim + j : j;
+                            result[key] = oneResult[j];
+                        }
+                    }
+                    return result;
+                }
+                if (label) {
+                    var result = {};
+                    for (var i in data) {
+                        if (i == 'date') {
+                            if (!data.format) {
+                                throw new Error('Cannot bind a date string without a format string. Need something like "format:\'%Y/%b/%d\'" in binding config for date.');
+                            }
+                            return dateToObj(new Date(Date.parse(data[i], data.format)), delim, label);
+                        }
+                        result[label + delim + i] = data[i];
+                    }
+                    return result;
+                }
+                return data;
+            }
+        }, 
+        
+        containsGroup: function(data) {
+            for (var i in data) {
+                if (!(data[i] instanceof Array) &&
+                    !(data[i] instanceof Date) &&
+                    typeof data[i] == 'object') {
+                        return true;
+                }
+            }
+            return false;
         }
         
     };
