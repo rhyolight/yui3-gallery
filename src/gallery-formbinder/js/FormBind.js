@@ -26,6 +26,7 @@ YUI().add('FormBind', function(Y) {
     tagBindings.textarea = function(target, value) {
         target.set('text', value);
     };
+    
     tagBindings.select = function(target, value) {
         var field = target.one('option[value=' + value +']');
         if (!field) {
@@ -43,11 +44,12 @@ YUI().add('FormBind', function(Y) {
     }
     
     function handleItemGroup(g, form, delim, label) {
-        var detailObjLabel = null,  // used to find out if we are inside a detail object
-            target = null,          // element in form we're targeting 
-            prop = null,            // a name of a data in the data object 
-            d = null,               // date object used if there is a date involved
-            value = null;           // a value in the object
+        var detailObjLabel,  // used to find out if we are inside a detail object
+            target,          // element in form we're targeting 
+            prop,            // a name of a data in the data object 
+            d,               // date object used if there is a date involved
+            i,               // iterator
+            value;           // a value in the object
 
         if (!label) {label = '';}
         
@@ -76,7 +78,7 @@ YUI().add('FormBind', function(Y) {
                 target = form.one('#' + prop);
                 // if there is an element with an id matching this data key name
                 if (target) {
-                    // if this is a fieldset grouping, we'll need to go deeper
+                    // if this is a fieldset grouping, we'll need to go deeper for radios or checkboxes
                     if (target.get('tagName').toLowerCase() == 'fieldset') {
                         // radio value
                         if (typeof value == 'string') {
@@ -85,7 +87,7 @@ YUI().add('FormBind', function(Y) {
                         } 
                         // checkbox values
                         else if (value instanceof Array) {
-                            for (var i in value) {
+                            for (i in value) {
                                 target = form.one('#' + prop + delim + value[i]);
                                 tagBindings[target.get('type').toLowerCase()](target);
                             }
@@ -99,92 +101,159 @@ YUI().add('FormBind', function(Y) {
             }
         }
     }
+    
+    function identify(form) {
+        if (typeof form == 'string') {
+            return Y.one('#' + form);
+        }
+        return form;
+    }
+    
+    function normalizeArray(data, delim) {
+        var result = {};
+        for (i in data) {
+            oneResult = this.normalizeLabels(data[i]);
+            if (this.containsGroup(oneResult)) {
+                // for a subgroup, we normalize again
+                oneResult = this.normalizeLabels(oneResult, delim);
+            }
+            for (j in oneResult) {
+                result[j] = oneResult[j];
+            }
+        }
+        return result;                
+    }
+    
+    function normalizeString(data, label) {
+        var result = {};
+        if (label) {
+            result[label] = data;
+            return result;
+        }
+        return data;
+    }
+    
+    function normalizeObject(data, delim, label) {
+        var result = {}, i, j, key, oneResult;
+        if (data.label) {
+            result[data.label] = data.data;
+            return result;
+        }
+        if (this.containsGroup(data)) {
+            for (i in data) {
+                oneResult = this.normalizeLabels(data[i], delim, i);
+                for (j in oneResult) {
+                    key = label ? label + delim + j : j;
+                    result[key] = oneResult[j];
+                }
+            }
+            return result;
+        }
+        if (label) {
+            for (i in data) {
+                if (i == 'date') {
+                    if (!data.format) {
+                        throw new Error('Cannot bind a date string without a format string. Need something like "format:\'%Y/%b/%d\'" in binding config for date.');
+                    }
+                    return dateToObj(new Date(Date.parse(data[i], data.format)), delim, label);
+                }
+                result[label + delim + i] = data[i];
+            }
+            return result;
+        }
+        return data;
+    }
+    
+    function processGroupFormComponent(el, id, type, delim, data) {
+        var pieces, val;
+        pieces = id.split(delim);
+        switch (type) {
+            // radio and checkbox are treated the same
+            case 'radio':
+            case 'checkbox':
+                // if it is checked, then we have a radio or checkbox
+                if (el.get('checked')) {
+                    // if there is already a value
+                    if (data[pieces[0]]) {
+                        // string needs to be put into a new array
+                        if (typeof data[pieces[0]] == 'string') {
+                            val = data[pieces[0]];
+                            data[pieces[0]] = [val];
+                        }
+                        data[pieces[0]].push(pieces[1]);
+                    } else {
+                        data[pieces[0]] = pieces[1];
+                    }
+                }
+                break;
+            case 'select':
+            case 'text':
+                if (!data[pieces[0]]) {
+                    data[pieces[0]] = {}
+                }
+                data[pieces[0]][pieces[1]] = el.get('value');
+                break;
+            default:
+                throw new Error('Unexpected input type: \'' + type + '\'');
+        }
+    }
+    
+    function processFormComponent(el, id, type, data) {
+        switch (type) {
+            case 'text':
+                data[id] = el.get('value');
+                break;
+            case 'textarea':
+                data[id] = el.get('text');
+                break;
+            // ignore buttons
+            case 'button':
+                break;
+            default:
+                throw new Error('Unexpected input type: \'' + type + '\'');
+        }
+    }
 
     Y[FORMBIND_NAME] = {
         
-        pushData: function(data, form, delimiter) {
+        pushData: function(data, form, delim) {
             var i = 0;
             
-            if (!delimiter) { delimiter = DEFAULT_DELIMITER; }
+            if (!delim) { delim = DEFAULT_DELIMITER; }
             
-            data = this.normalizeLabels(data, delimiter);
+            data = this.normalizeLabels(data, delim);
             
-            if (typeof form == 'string') {
-                form = Y.one('#' + form);
-            }
+            form = identify(form);
 
             // uncheck any checkboxes in the form
             form.all('input[type="checkbox"]').set('checked', false);
 
             if (data instanceof Array) {
                 for (i = 0; i < data.length; i++) {
-                    handleItemGroup.call(this, data[i], form, delimiter);
+                    handleItemGroup.call(this, data[i], form, delim);
                 }
             } else {
-                handleItemGroup.call(this, data, form, delimiter);
+                handleItemGroup.call(this, data, form, delim);
             }
         },
         
-        pullData: function(form, delimiter) {
+        pullData: function(form, delim) {
             var data = {},      // return this
                 type,           // type of the html element input
-                pieces,         // pieces of a hyphenated id
                 id;             // id of each element as we loop through form
             
-            if (!delimiter) { delimiter = DEFAULT_DELIMITER; }
+            if (!delim) { delim = DEFAULT_DELIMITER; }
             
+            form = identify(form);
             
-            if (typeof form == 'string') {
-                form = Y.one('#' + form);
-            }
             form.all('input, select, textarea').each(function(el) {
+
                 id = el.get('id');
                 type = el.get('tagName').toLowerCase() == 'select' ? 'select' : el.get('type');
-                if (id.indexOf(delimiter) > 0) {
-                    pieces = id.split(delimiter);
-                    switch (type) {
-                        // radio and checkbox are treated the same
-                        case 'radio':
-                        case 'checkbox':
-                            // if it is checked, then we have a radio or checkbox
-                            if (el.get('checked')) {
-                                // if there is already a value
-                                if (data[pieces[0]]) {
-                                    // string needs to be put into a new array
-                                    if (typeof data[pieces[0]] == 'string') {
-                                        var v = data[pieces[0]];
-                                        data[pieces[0]] = [v];                                
-                                    }
-                                    data[pieces[0]].push(pieces[1]);
-                                } else {
-                                    data[pieces[0]] = pieces[1];
-                                }
-                            }
-                            break;
-                        case 'select':
-                        case 'text':
-                            if (!data[pieces[0]]) {
-                                data[pieces[0]] = {}
-                            }
-                            data[pieces[0]][pieces[1]] = el.get('value');
-                            break;
-                        default:
-                            throw new Error('Unexpected input type: \'' + type + '\'');
-                    }
+                if (id.indexOf(delim) > 0) {
+                    processGroupFormComponent(el, id, type, delim, data);
                 } else {
-                    switch (type) {
-                        case 'text':
-                            data[id] = el.get('value');
-                            break;
-                        case 'textarea':
-                            data[id] = el.get('text');
-                            break;
-                        // ignore buttons
-                        case 'button':
-                            break;
-                        default:
-                            throw new Error('Unexpected input type: \'' + type + '\'');
-                    }
+                    processFormComponent(el, id, type, data);
                 }
             });
             return data;
@@ -192,61 +261,17 @@ YUI().add('FormBind', function(Y) {
         
         normalizeLabels: function(data, delim, label) {
             if (data instanceof Array) {
-                var result = {};
-                for (var i in data) {
-                    var oneResult = this.normalizeLabels(data[i]);
-                    if (this.containsGroup(oneResult)) {
-                        // for a subgroup, we normalize again
-                        oneResult = this.normalizeLabels(oneResult, delim);
-                    }
-                    for (var j in oneResult) {
-                        result[j] = oneResult[j];
-                    }
-                }
-                return result;
+                return normalizeArray.call(this, data, delim);
             } else if (typeof data == 'string') {
-                if (label) {
-                    var result = {};
-                    result[label] = data;
-                    return result;
-                }
-                return data;                
+                return normalizeString.call(this, data, label);             
             } else {
-                if (data.label) {
-                    var result = {};
-                    result[data.label] = data.data;
-                    return result;
-                }
-                if (this.containsGroup(data)) {
-                    var result = {};
-                    for (var i in data) {
-                        var oneResult = this.normalizeLabels(data[i], delim, i);
-                        for (var j in oneResult) {
-                            var key = label ? label + delim + j : j;
-                            result[key] = oneResult[j];
-                        }
-                    }
-                    return result;
-                }
-                if (label) {
-                    var result = {};
-                    for (var i in data) {
-                        if (i == 'date') {
-                            if (!data.format) {
-                                throw new Error('Cannot bind a date string without a format string. Need something like "format:\'%Y/%b/%d\'" in binding config for date.');
-                            }
-                            return dateToObj(new Date(Date.parse(data[i], data.format)), delim, label);
-                        }
-                        result[label + delim + i] = data[i];
-                    }
-                    return result;
-                }
-                return data;
+                return normalizeObject.call(this, data, delim, label);
             }
         }, 
         
         containsGroup: function(data) {
-            for (var i in data) {
+            var i; // iterator
+            for (i in data) {
                 if (!(data[i] instanceof Array) &&
                     !(data[i] instanceof Date) &&
                     typeof data[i] == 'object') {
@@ -259,4 +284,5 @@ YUI().add('FormBind', function(Y) {
     };
     
     return Y[FORMBIND_NAME];
+    
 }, '0.1', { requires: ['node'] });
