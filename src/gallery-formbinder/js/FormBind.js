@@ -9,23 +9,28 @@ YUI().add('FormBind', function(Y) {
         // a delimiter is used when form input is grouped
         DEFAULT_DELIMITER = '-',
         // this object contains the binding processes for each type of form element by name
-        tagBindingStrategies = {
-            radio: function(target) {
+        tagBindingStrategies = (function() {
+            function checkable(target) {
                 target.set('checked', true);
-            },
-            input: function(target, value) {
+            }
+            function textinput(target, value) {
                 target.set('value', value);
-            },
-            select: function(target, value) {
+            }
+            function selection(target, value) {
                 var field = target.one('option[value=' + value +']');
                 if (!field) {
                     throw new Error('Cannot bind value "' + value + '" to a combo box without that option available.');
                 }
                 field.set('selected', true);
             }
-        };
-        tagBindingStrategies.checkbox = tagBindingStrategies.radio;
-        tagBindingStrategies.textarea = tagBindingStrategies.input;
+            return {
+                radio: checkable,
+                checkbox: checkable,
+                input: textinput,
+                textarea: textinput,
+                select: selection
+            };
+        })();
    
     function dateToObj(d, delim, label) {
         var result = {};
@@ -159,8 +164,8 @@ YUI().add('FormBind', function(Y) {
     function processGroupFormComponent(el, id, type, delim, data) {
         var pieces, 
             val, 
-            elementTypeStrategies = {
-                radio: function(el, data, pieces) {
+            elementTypeStrategies = (function() {
+                function checkedStrategy(el, data, pieces) {
                     var val;
                     // if it is checked, then we have a radio or checkbox
                     if (el.get('checked')) {
@@ -176,16 +181,20 @@ YUI().add('FormBind', function(Y) {
                             data[pieces[0]] = pieces[1];
                         }
                     }
-                },
-                select: function(el, data, pieces) {
+                }
+                function valueStrategy(el, data, pieces) {
                     if (!data[pieces[0]]) {
                         data[pieces[0]] = {}
                     }
                     data[pieces[0]][pieces[1]] = el.get('value');
                 }
-            };
-            elementTypeStrategies.checkbox = elementTypeStrategies.radio;
-            elementTypeStrategies.text = elementTypeStrategies.select;
+                return {
+                    radio:checkedStrategy,
+                    checkbox:checkedStrategy,
+                    select:valueStrategy,
+                    text:valueStrategy
+                };
+            })();
         pieces = id.split(delim);
         
         elementTypeStrategies[type](el, data, pieces);
