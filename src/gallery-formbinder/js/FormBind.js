@@ -9,32 +9,24 @@ YUI().add('FormBind', function(Y) {
         // a delimiter is used when form input is grouped
         DEFAULT_DELIMITER = '-',
         // this object contains the binding processes for each type of form element by name
-        tagBindings = {};
-    
-    tagBindings.radio = function(target) {
-        target.set('checked', true);
-    };
-    
-    tagBindings.checkbox = function(target) {
-        target.set('checked', true);
-    };
-    
-    tagBindings.input = function(target, value) {
-        target.set('value', value);
-    };
-    
-    tagBindings.textarea = function(target, value) {
-        target.set('text', value);
-    };
-    
-    tagBindings.select = function(target, value) {
-        var field = target.one('option[value=' + value +']');
-        if (!field) {
-            throw new Error('Cannot bind value "' + value + '" to a combo box without that option available.');
-        }
-        field.set('selected', true);
-    };
-    
+        tagBindingStrategies = {
+            radio: function(target) {
+                target.set('checked', true);
+            },
+            input: function(target, value) {
+                target.set('value', value);
+            },
+            select: function(target, value) {
+                var field = target.one('option[value=' + value +']');
+                if (!field) {
+                    throw new Error('Cannot bind value "' + value + '" to a combo box without that option available.');
+                }
+                field.set('selected', true);
+            }
+        };
+        tagBindingStrategies.checkbox = tagBindingStrategies.radio;
+        tagBindingStrategies.textarea = tagBindingStrategies.input;
+   
     function dateToObj(d, delim, label) {
         var result = {};
         result[label + delim + 'year'] = d.getFullYear();
@@ -83,17 +75,17 @@ YUI().add('FormBind', function(Y) {
                         // radio value
                         if (typeof value == 'string') {
                             target = form.one('#' + prop + delim + value);
-                            tagBindings[target.get('type').toLowerCase()](target);                            
+                            tagBindingStrategies[target.get('type').toLowerCase()](target);                            
                         } 
                         // checkbox values
                         else if (value instanceof Array) {
-                            for (i in value) {
+                            for (i = 0; i< value.length; i++) {
                                 target = form.one('#' + prop + delim + value[i]);
-                                tagBindings[target.get('type').toLowerCase()](target);
+                                tagBindingStrategies[target.get('type').toLowerCase()](target);
                             }
                         }
                     } else {
-                        tagBindings[target.get('tagName').toLowerCase()](target, value, prop, g, form);
+                        tagBindingStrategies[target.get('tagName').toLowerCase()](target, value, prop, g, form);
                     }
                 } else {
                     throw new Error('Cannot bind form data to element named "' + prop + '" because it does not exist!');
@@ -110,8 +102,8 @@ YUI().add('FormBind', function(Y) {
     }
     
     function normalizeArray(data, delim) {
-        var result = {};
-        for (i in data) {
+        var result = {}, oneResult, i, j;
+        for (i=0; i< data.length; i++) {
             oneResult = this.normalizeLabels(data[i]);
             if (this.containsGroup(oneResult)) {
                 // for a subgroup, we normalize again
@@ -165,37 +157,38 @@ YUI().add('FormBind', function(Y) {
     }
     
     function processGroupFormComponent(el, id, type, delim, data) {
-        var pieces, val;
-        pieces = id.split(delim);
-        switch (type) {
-            // radio and checkbox are treated the same
-            case 'radio':
-            case 'checkbox':
-                // if it is checked, then we have a radio or checkbox
-                if (el.get('checked')) {
-                    // if there is already a value
-                    if (data[pieces[0]]) {
-                        // string needs to be put into a new array
-                        if (typeof data[pieces[0]] == 'string') {
-                            val = data[pieces[0]];
-                            data[pieces[0]] = [val];
+        var pieces, 
+            val, 
+            elementTypeStrategies = {
+                radio: function(el, data, pieces) {
+                    var val;
+                    // if it is checked, then we have a radio or checkbox
+                    if (el.get('checked')) {
+                        // if there is already a value
+                        if (data[pieces[0]]) {
+                            // string needs to be put into a new array
+                            if (typeof data[pieces[0]] == 'string') {
+                                val = data[pieces[0]];
+                                data[pieces[0]] = [val];
+                            }
+                            data[pieces[0]].push(pieces[1]);
+                        } else {
+                            data[pieces[0]] = pieces[1];
                         }
-                        data[pieces[0]].push(pieces[1]);
-                    } else {
-                        data[pieces[0]] = pieces[1];
                     }
+                },
+                select: function(el, data, pieces) {
+                    if (!data[pieces[0]]) {
+                        data[pieces[0]] = {}
+                    }
+                    data[pieces[0]][pieces[1]] = el.get('value');
                 }
-                break;
-            case 'select':
-            case 'text':
-                if (!data[pieces[0]]) {
-                    data[pieces[0]] = {}
-                }
-                data[pieces[0]][pieces[1]] = el.get('value');
-                break;
-            default:
-                throw new Error('Unexpected input type: \'' + type + '\'');
-        }
+            };
+            elementTypeStrategies.checkbox = elementTypeStrategies.radio;
+            elementTypeStrategies.text = elementTypeStrategies.select;
+        pieces = id.split(delim);
+        
+        elementTypeStrategies[type](el, data, pieces);
     }
     
     function processFormComponent(el, id, type, data) {
@@ -216,7 +209,7 @@ YUI().add('FormBind', function(Y) {
 
     Y[FORMBIND_NAME] = {
         
-        pushData: function(data, form, delim) {
+        push: function(data, form, delim) {
             var i = 0;
             
             if (!delim) { delim = DEFAULT_DELIMITER; }
@@ -237,7 +230,7 @@ YUI().add('FormBind', function(Y) {
             }
         },
         
-        pullData: function(form, delim) {
+        pull: function(form, delim) {
             var data = {},      // return this
                 type,           // type of the html element input
                 id;             // id of each element as we loop through form

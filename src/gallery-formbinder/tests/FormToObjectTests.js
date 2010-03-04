@@ -41,7 +41,7 @@ YUI.add("form_to_obj_tests", function(Y) {
         },
         
         testBindTextInput: function(){
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isNotNull(d.fname, 'No first name value');
             assert.isNotNull(d.lname, 'No last name value');
             assert.areEqual('Matthew', d.fname);
@@ -49,13 +49,13 @@ YUI.add("form_to_obj_tests", function(Y) {
         },
         
         testBindRadioInput: function() {
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isNotNull(d.gender);
             assert.areEqual('male', d.gender);
         },
         
         testBindCheckbox: function() {
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isNotNull(d['fav-sammiches'], 'Checkbox was null');
             assert.isArray(d['fav-sammiches'], 'Checkbox data was not array');
             assert.areEqual(3, d['fav-sammiches'].length, 'checkbox data wrong length');
@@ -69,7 +69,7 @@ YUI.add("form_to_obj_tests", function(Y) {
         },
         
         testBindDate_InMapFormat_MonthAndDayAsComboboxes_YearAsTextInput: function() {
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isNotNull(d.birth, 'birth date array was null');
             assert.areEqual(1971, d.birth.year, 'wrong year of birth');
             assert.areEqual('3', d.birth.month, 'wrong month of birth');
@@ -95,7 +95,7 @@ YUI.add("form_to_obj_tests", function(Y) {
             f.one('#birth_day').set('value', 11);
             f.one('#birth_year option[value=1971]').set('selected', true);
             
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isNotNull(d.birth, 'birth date array was null');
             assert.areEqual(1971, d.birth.year, 'wrong year of birth');
             assert.areEqual('March', d.birth.month, 'wrong month of birth');
@@ -103,13 +103,13 @@ YUI.add("form_to_obj_tests", function(Y) {
         },
         
         testBindTextarea: function() {
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isNotNull(d.bio, 'text area input was null');
             assert.areEqual('This is my entire life story.', d.bio, 'wrong text area input');
         },
         
         testTheWholeDamnThing_InMap: function() {
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isNotNull(d.fname, 'No first name value');
             assert.isNotNull(d.lname, 'No last name value');
             assert.areEqual('Matthew', d.fname);
@@ -135,7 +135,7 @@ YUI.add("form_to_obj_tests", function(Y) {
         },
         
         testButtonValuesAreNotPulled: function() {
-            var d = Y.FormBind.pullData('personal-info', '_');
+            var d = Y.FormBind.pull('personal-info', '_');
             assert.isUndefined(d.submit);
             assert.isUndefined(d.cancel);
         }

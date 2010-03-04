@@ -35,7 +35,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindTextInput: function(){
             var d = {fname: 'Matthew', lname: 'Taylor'};
             
-            Y.FormBind.pushData(d, 'personal-info');
+            Y.FormBind.push(d, 'personal-info');
             
             var fname = Y.one('input#fname').get('value');
             assert.isNotNull(fname, 'first name not entered');
@@ -50,7 +50,7 @@ YUI.add("obj_to_form_tests", function(Y) {
                 {label:'fname', data:'Matthew'}, {label:'lname', data:'Taylor'}
             ];
             
-            Y.FormBind.pushData(d, 'personal-info');
+            Y.FormBind.push(d, 'personal-info');
             
             var fname = Y.one('input#fname').get('value');
             assert.isNotNull(fname, 'first name not entered');
@@ -63,7 +63,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindRadioInput: function() {
             var d = {gender: 'male'};
             
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             assert.isTrue(Y.one('input#gender_male').get('checked'), 'gender_male radio not checked');
             assert.isFalse(Y.one('input#gender_female').get('checked'), 'gender_female radio was checked');
@@ -72,7 +72,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindRadioInput_InDetailObject: function() {
             var d = [{label: 'gender', data:'male'}];
             
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             assert.isTrue(Y.one('input#gender_male').get('checked'), 'gender_male radio not checked');
             assert.isFalse(Y.one('input#gender_female').get('checked'), 'gender_female radio was checked');
@@ -81,7 +81,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindCheckbox: function() {
             var d = {'fav-sammiches': ['cheese', 'ham', 'rueben']};
             
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             assert.isTrue(Y.one('input#fav-sammiches_cheese').get('checked'), 'cheese was not checked');
             assert.isFalse(Y.one('input#fav-sammiches_egg').get('checked'), 'egg was checked');
@@ -93,7 +93,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindCheckbox_InDetailObject: function() {
             var d = [{label: 'fav-sammiches', data: ['cheese', 'ham', 'rueben']}];
             
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             assert.isTrue(Y.one('input#fav-sammiches_cheese').get('checked'), 'cheese was not checked');
             assert.isFalse(Y.one('input#fav-sammiches_egg').get('checked'), 'egg was checked');
@@ -109,7 +109,7 @@ YUI.add("obj_to_form_tests", function(Y) {
             });
             var d = {'fav-sammiches': ['cheese', 'ham', 'rueben']};
             
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             assert.isTrue(Y.one('input#fav-sammiches_cheese').get('checked'), 'cheese was not checked');
             assert.isFalse(Y.one('input#fav-sammiches_egg').get('checked'), 'egg was checked');
@@ -121,7 +121,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindDate_InMapFormat_MonthAndDayAsComboboxes_YearAsTextInput: function() {
             var i = 0, d = [{label:'birth', data:{year:1971, month:3, day:11}}];
 
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
 
             // month
             var monthOptions = Y.all('select#birth_month option');
@@ -162,7 +162,7 @@ YUI.add("obj_to_form_tests", function(Y) {
 
             var i = 0, d = [{label:'birth', data:{year:1971, month:3, day:11}}];
 
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             // month
             assert.areEqual('3', Y.one('input#birth_month').get('value'), 'birth month was not correct');
@@ -183,13 +183,13 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindDate_InMapFormat_ThrowsErrorWhenComboboxSelectionDoesntExist: function() {
             var d = [{label:'birth', data:{year:1971, month:3, day:41}}];
 
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
         },
         
         testBindDateObject: function() {
             var i = 0, d = {birth: new Date(1971, 6, 11, 0, 0, 0, 0)};
 
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
 
             // month
             var monthOptions = Y.all('select#birth_month option');
@@ -217,7 +217,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindDateString: function() {
             var i = 0, d = [{label:'birth', data:{date:'1971/03/11', format: '%Y/%b/%d'}}];
 
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
 
             // month
             var monthOptions = Y.all('select#birth_month option');
@@ -245,14 +245,14 @@ YUI.add("obj_to_form_tests", function(Y) {
         testDateStringBindingThrowsErrorWhenMissingFormat: function() {
             var i = 0, d = [{label:'birth', data:{date:'1971/03/11'}}];
 
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
 
         },
         
         testBindTextarea: function() {
             var d = {bio:'This is my entire life story.'};
             
-            Y.FormBind.pushData(d, 'personal-info');
+            Y.FormBind.push(d, 'personal-info');
             
             assert.areEqual('This is my entire life story.', Y.one('#bio').get('value'));
         },
@@ -260,7 +260,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testBindTextarea_InDetailObject: function() {
             var d = [{label: 'bio', data: 'This is my entire life story.'}];
             
-            Y.FormBind.pushData(d, 'personal-info');
+            Y.FormBind.push(d, 'personal-info');
             
             assert.areEqual('This is my entire life story.', Y.one('#bio').get('value'));
         },
@@ -268,7 +268,7 @@ YUI.add("obj_to_form_tests", function(Y) {
         testPassingFormNode: function() {
             var d = [{label: 'bio', data: 'This is my entire life story.'}];
             
-            Y.FormBind.pushData(d, Y.one('#personal-info'));
+            Y.FormBind.push(d, Y.one('#personal-info'));
             
             assert.areEqual('This is my entire life story.', Y.one('#bio').get('value'));
         },
@@ -283,7 +283,7 @@ YUI.add("obj_to_form_tests", function(Y) {
                 'fav-sammiches': ['cheese', 'ham', 'rueben']
             };
             
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             var fname = Y.one('input#fname').get('value');
             assert.isNotNull(fname, 'first name not entered');
@@ -330,7 +330,7 @@ YUI.add("obj_to_form_tests", function(Y) {
                 {label: 'fav-sammiches', data: ['cheese', 'ham', 'rueben']}
             ];
             
-            Y.FormBind.pushData(d, 'personal-info', '_');
+            Y.FormBind.push(d, 'personal-info', '_');
             
             var fname = Y.one('input#fname').get('value');
             assert.isNotNull(fname, 'first name not entered');
