@@ -6,7 +6,7 @@
             min: 'http://github.com/DmitryBaranovskiy/raphael/raw/master/raphael-min.js'
         },
         // Raphael functions I'm shimming
-        methods = ['rect', 'circle', 'ellipse', 'path', 'text', 'image', 'clear', 'setSize'],
+        methods = ['rect', 'circle', 'ellipse', 'path', 'text', 'image', 'clear', 'setSize', 'set'],
         statics = ['getRGB', 'setWindow', 'angle', 'rad', 'deg', 'snapTo', 'getColor', 'registerFont'];
     
     /*
@@ -90,7 +90,9 @@
         function wrapVector(vect) {
             if (vect === raph) {
                 return vect; // not a vector, just chaining
-            }
+            } else if (vect.type && vect.type === 'set') {
+				return vect; // this is a Set
+			}
             vect.$node = new Y.Node(vect.node);
             return Y.augment(vect, Y.EventTarget);
         }
@@ -101,11 +103,6 @@
                 return wrapVector(raph[fnName].apply(raph, arguments));
             };
         });
-        
-        // this has to be done on it's own, and I'm not sure why just yet
-        raphInst.set = function() {
-            return raph.set.apply(raph, arguments);
-        }
         
         // this handles plugin addons to the main canvas
         Y.Object.each(Raphael.fn, function(fn, fnName) {
